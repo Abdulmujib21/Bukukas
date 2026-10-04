@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0f766e">
-<title>Buku Kas Suara v3.4.0</title>
+<title>Buku Kas Suara v3.5.0</title>
 <!--
   ============================================================================
   BUKU KAS SUARA  ·  versi 3.0.0
@@ -13,6 +13,14 @@
   Data disimpan di perangkat (localStorage). Tidak ada server.
   ----------------------------------------------------------------------------
   CHANGELOG
+  v3.5.0 (4 Okt 2026)
+    - Mikrofon tetap aktif (mendengar terus) sampai tombol Stop ditekan.
+    - Pencatatan otomatis banyak barang sekaligus: nama barang + harga
+      dalam satu ucapan menjadi beberapa baris.
+    - Penyaring kebisingan: hanya ucapan yang memuat harga yang dicatat;
+      ocehan orang lain tanpa harga diabaikan.
+    - Opsi kata pemicu dan abaikan nominal di bawah batas tertentu.
+    - Tombol Stop + status jumlah baris tercatat / diabaikan.
   v3.4.0 (4 Okt 2026)
     - Permintaan izin mikrofon lewat getUserMedia, sehingga dialog izin
       browser selalu muncul saat tombol mikrofon ditekan.
@@ -177,6 +185,9 @@
   .perm-dot.warn{background:var(--amber)}
   .perm-text{flex:1;font-size:11.5px;color:var(--muted);line-height:1.4}
   .perm .btn{flex:none;padding:6px 10px;font-size:12px}
+  .listen-row{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:9px;min-height:30px}
+  .listen-stat{font-size:11px;color:var(--muted);text-align:center}
+  #stopBtn{background:var(--out);border-color:var(--out);color:#fff}
 
   /* ---- chart ---- */
   .chart{width:100%;height:120px;display:block;overflow:visible}
@@ -282,7 +293,7 @@
   <header>
     <div class="logo">🎙️</div>
     <div>
-      <h1>Buku Kas Suara <span class="ver" id="verBadge">v3.4.0</span></h1>
+      <h1>Buku Kas Suara <span class="ver" id="verBadge">v3.5.0</span></h1>
       <p id="tokoSub">Bicara saja. Sisanya diurus.</p>
     </div>
   </header>
@@ -296,6 +307,10 @@
         <span class="perm-dot" id="permDot"></span>
         <span class="perm-text" id="permText">Memeriksa izin mikrofon…</span>
         <button class="btn sm" id="permBtn">Aktifkan</button>
+      </div>
+      <div class="listen-row">
+        <button class="btn sm" id="stopBtn" style="display:none">⏹ Stop</button>
+        <span class="listen-stat" id="listenStat"></span>
       </div>
       <p class="transcript empty" id="transcript">Contoh: “jual 3 beras 180 ribu, beli gas 25 ribu”</p>
     </div>
@@ -454,6 +469,10 @@
           <input class="input" id="cfgPersediaan" type="number" inputmode="numeric" min="0" step="1000" value="0"></div>
         <div class="field"><label>HPP rata-rata (% dari penjualan, opsional)</label>
           <input class="input" id="cfgHppPersen" type="number" inputmode="decimal" min="0" max="100" step="1" placeholder="mis. 75 — kosongkan jika isi HPP manual"></div>
+        <div class="field"><label>Kata pemicu (opsional)</label>
+          <input class="input" id="cfgTrigger" maxlength="20" placeholder="mis. catat — hanya direkam jika kata ini diucapkan"></div>
+        <div class="field"><label>Abaikan nominal di bawah (Rp)</label>
+          <input class="input" id="cfgMinAmount" type="number" inputmode="numeric" min="0" step="100" value="100"></div>
         <button class="btn primary sm" id="cfgSave" style="width:100%">Simpan pengaturan</button>
       </div>
     </details>
@@ -534,7 +553,7 @@
   </div>
 
   <p class="note" style="text-align:center;margin:18px 0 0">
-    Buku Kas Suara <span id="footVer">v3.4.0</span> · bekerja tanpa internet · data milikmu sendiri
+    Buku Kas Suara <span id="footVer">v3.5.0</span> · bekerja tanpa internet · data milikmu sendiri
   </p>
 </div>
 
@@ -547,8 +566,15 @@
 /* =========================================================
    0. VERSI & CHANGELOG
    ========================================================= */
-const APP_VERSION = '3.4.0';
+const APP_VERSION = '3.5.0';
 const CHANGELOG = [
+  { v:'3.5.0', d:'4 Okt 2026', items:[
+    'Mikrofon tetap aktif sampai tombol Stop ditekan.',
+    'Banyak barang sekaligus: nama barang + harga dalam satu ucapan jadi beberapa baris.',
+    'Penyaring kebisingan: hanya ucapan berisi harga yang dicatat.',
+    'Opsi kata pemicu dan abaikan nominal di bawah batas.',
+    'Tombol Stop + status jumlah baris tercatat / diabaikan.'
+  ]},
   { v:'3.4.0', d:'4 Okt 2026', items:[
     'Permintaan izin mikrofon lewat getUserMedia agar dialog izin browser selalu muncul.',
     'Panel status izin mikrofon + tombol “Aktifkan” di halaman utama.',
@@ -647,7 +673,7 @@ const groupOf = t => {
    ========================================================= */
 const KEY = 'bukuKasSuara.v3';
 const OLD_KEYS = ['bukuKasSuara.v1','bukuKasSuara.v2'];
-const state = { tx:[], stok:[], cfg:{ toko:'', saldoAwal:{ kas:0, bank:0, ewallet:0 }, persediaanAwal:0, hppPersen:0 }, created: Date.now() };
+const state = { tx:[], stok:[], cfg:{ toko:'', saldoAwal:{ kas:0, bank:0, ewallet:0 }, persediaanAwal:0, hppPersen:0, trigger:'', minAmount:100 }, created: Date.now() };
 
 function sanitizeTx(t){
   if(!t || typeof t !== 'object') return null;
@@ -689,9 +715,12 @@ function sanitizeStok(s){
 }
 
 function sanitizeCfg(c){
-  const out = { toko:'', saldoAwal:{ kas:0, bank:0, ewallet:0 }, persediaanAwal:0, hppPersen:0 };
+  const out = { toko:'', saldoAwal:{ kas:0, bank:0, ewallet:0 }, persediaanAwal:0, hppPersen:0, trigger:'', minAmount:100 };
   if(c && typeof c === 'object'){
     out.toko = String(c.toko == null ? '' : c.toko).slice(0,40);
+    out.trigger = String(c.trigger == null ? '' : c.trigger).trim().slice(0,20);
+    const ma = Math.round(Number(c.minAmount));
+    out.minAmount = isFinite(ma) && ma >= 0 ? ma : 100;
     if(c.saldoAwal && typeof c.saldoAwal === 'object'){
       AKUNS.forEach(a => {
         const v = Math.round(Number(c.saldoAwal[a.id]));
@@ -902,6 +931,9 @@ function parseSegment(seg){
   if(qty !== null) note = note.replace(new RegExp('^' + qty + '\\b'), '').trim();
   note = note.replace(/\s+/g,' ').slice(0,60);
 
+  // penyaring kebisingan: buang ucapan tanpa nama barang & tanpa kata niat
+  if(!note && outScore === 0 && inScore === 0) return null;
+
   const cat = pickCat(toks.join(' ') + ' ' + note, type);
   const g = catById(cat).group;
   if(g === 'modal') type = 'in';
@@ -918,9 +950,10 @@ function parseSegment(seg){
 
 function parseText(text){
   const segs = splitSegments(text);
+  const min = (state.cfg && state.cfg.minAmount) || 0;
   const out = [];
-  segs.forEach(s => { const r = parseSegment(s); if(r && r.amount > 0) out.push(r); });
-  if(!out.length){ const r = parseSegment(text); if(r && r.amount > 0) out.push(r); }
+  segs.forEach(s => { const r = parseSegment(s); if(r && r.amount > 0 && r.amount >= min) out.push(r); });
+  if(!out.length){ const r = parseSegment(text); if(r && r.amount > 0 && r.amount >= min) out.push(r); }
   return out;
 }
 
@@ -1585,10 +1618,35 @@ function setTranscript(txt){
   else { el.textContent = 'Contoh: “jual 3 beras 180 ribu, beli gas 25 ribu”'; el.classList.add('empty'); }
 }
 
+let ignoredCount = 0;
+function updateListenUI(){
+  const hint = $('#micHint'), stop = $('#stopBtn'), st = $('#listenStat');
+  if(listening){
+    if(hint) hint.textContent = 'Mendengarkan… bicara bebas. Ketuk ⏹ Stop untuk berhenti.';
+    if(stop) stop.style.display = '';
+  } else {
+    if(hint) hint.textContent = 'Tekan untuk bicara';
+    if(stop) stop.style.display = 'none';
+  }
+  if(st){
+    st.textContent = listening
+      ? ('Tercatat ' + draft.length + ' baris · ' + ignoredCount + ' suara tanpa harga diabaikan')
+      : '';
+  }
+}
+
 function handleSpeech(text, src, append){
-  const res = parseText(text);
+  const w = (state.cfg.trigger || '').trim().toLowerCase();
+  if(w && text.toLowerCase().indexOf(w) === -1){
+    if(append){ ignoredCount++; updateListenUI(); }
+    return;
+  }
+  let clean = text;
+  if(w){ clean = text.toLowerCase().split(w).join(' '); }
+  const res = parseText(clean);
   if(!res.length){
-    if(!append) toast('Angka belum terbaca. Coba sebut jumlahnya, mis. “25 ribu”.');
+    if(append){ ignoredCount++; updateListenUI(); }
+    else toast('Angka belum terbaca. Coba sebut jumlahnya, mis. “25 ribu”.');
     return;
   }
   const items = res.map(r => ({
@@ -1600,6 +1658,7 @@ function handleSpeech(text, src, append){
   }));
   draft = append && draft.length ? draft.concat(items) : items;
   renderDraft();
+  updateListenUI();
   const card = $('#draftCard');
   if(card.style.display !== 'none') card.scrollIntoView({ behavior:'smooth', block:'center' });
 }
@@ -1715,8 +1774,8 @@ function requestMicThenListen(){
 function stopListen(){
   listening = false;
   $('#mic').classList.remove('on');
-  $('#micHint').textContent = 'Tekan untuk bicara';
   if(rec){ try { rec.stop(); } catch(e){} }
+  updateListenUI();
 }
 
 function startListen(){
@@ -1725,7 +1784,7 @@ function startListen(){
     $('#manual').focus();
     return;
   }
-  draft = []; renderDraft();
+  draft = []; ignoredCount = 0; renderDraft();
   sessionFinal = '';
   try {
     rec = new SR();
@@ -1739,7 +1798,7 @@ function startListen(){
       micPerm = 'granted';
       permUI();
       $('#mic').classList.add('on');
-      $('#micHint').textContent = 'Mendengarkan… bicara sekarang';
+      updateListenUI();
       setTranscript('');
     };
     rec.onresult = e => {
@@ -1768,7 +1827,15 @@ function startListen(){
       stopListen();
       toast(m);
     };
-    rec.onend = () => { if(listening) stopListen(); };
+    rec.onend = () => {
+      if(!listening) return;
+      if(micPerm === 'denied'){ stopListen(); return; }
+      setTimeout(() => {
+        if(!listening) return;
+        try { rec.start(); }
+        catch(e){ try { rec.stop(); } catch(_){} }
+      }, 350);
+    };
     rec.start();
   } catch(e){
     stopListen();
@@ -2010,6 +2077,8 @@ function renderCfg(){
   $('#cfgEw').value = state.cfg.saldoAwal.ewallet || 0;
   $('#cfgPersediaan').value = state.cfg.persediaanAwal || 0;
   $('#cfgHppPersen').value = state.cfg.hppPersen || '';
+  $('#cfgTrigger').value = state.cfg.trigger || '';
+  $('#cfgMinAmount').value = state.cfg.minAmount || 0;
 }
 
 function saveCfg(){
@@ -2020,6 +2089,8 @@ function saveCfg(){
   state.cfg.persediaanAwal = Math.max(0, Math.round(Number($('#cfgPersediaan').value) || 0));
   const hp = Number($('#cfgHppPersen').value);
   state.cfg.hppPersen = (isFinite(hp) && hp > 0 && hp <= 100) ? hp : 0;
+  state.cfg.trigger = $('#cfgTrigger').value.trim().slice(0,20);
+  state.cfg.minAmount = Math.max(0, Math.round(Number($('#cfgMinAmount').value) || 0));
   save(); renderAll();
   toast('Pengaturan disimpan ✓');
 }
@@ -2052,6 +2123,7 @@ function renderChangelog(){
    ========================================================= */
 $('#mic').addEventListener('click', () => { listening ? stopListen() : requestMicThenListen(); });
 $('#permBtn').addEventListener('click', () => { if(listening) stopListen(); else requestMicThenListen(); });
+$('#stopBtn').addEventListener('click', stopListen);
 
 $('#manualBtn').addEventListener('click', () => {
   const v = $('#manual').value.trim();
