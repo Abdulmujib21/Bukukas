@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
+<script>(function(){try{var t=localStorage.getItem("kasia.theme")||"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();</script>
 <title>KASiA — Buku Kas Suara Offline</title>
 <style>
 :root{
@@ -529,6 +530,121 @@ details[open] summary::after{content:"▴"}
   padding:11px 14px;font-weight:700;font-size:13.5px;margin-bottom:9px;
 }
 
+/* =========================================================
+   v4.0.7  MODE TERANG (dipilih manual di Pengaturan)
+   ========================================================= */
+[data-theme="light"]{
+  --brand:#0B8A63; --brand-2:#0E9F6E; --brand-soft:rgba(14,159,110,.12);
+  --brand-deep:#0B8A63;
+  --ink:#0A1C16; --muted:#5E736C; --bg:#EFF4F2; --card:#FFFFFF; --line:#DBE5E1;
+  --in:#0B8A63; --out:#D93036; --warn:#B8791A;
+  --shadow:0 0 0 1px rgba(14,159,110,.10), 0 6px 18px rgba(12,60,45,.08);
+  --shadow-sm:0 0 0 1px rgba(14,159,110,.10), 0 2px 8px rgba(12,60,45,.07);
+  --shadow-md:0 0 0 1px rgba(14,159,110,.10), 0 10px 24px rgba(12,60,45,.10);
+  --shadow-btn:0 6px 16px rgba(14,159,110,.26);
+  --shadow-brand:0 10px 24px rgba(14,159,110,.30);
+}
+[data-theme="light"] body,
+[data-theme="light"] .app{background:var(--bg);color:var(--ink)}
+
+/* --- nav bawah: kaca putih --- */
+[data-theme="light"] #bottomNav{
+  background:rgba(255,255,255,.95) !important;
+  border:1px solid rgba(11,138,99,.18) !important;
+  box-shadow:0 12px 30px rgba(12,60,45,.14),0 2px 8px rgba(12,60,45,.06) !important;
+}
+[data-theme="light"] #bottomNav button{color:#7C8F89}
+[data-theme="light"] #bottomNav button.active{color:#0B8A63 !important}
+[data-theme="light"] #bottomNav button.active .ni{
+  background:rgba(14,159,110,.14) !important;box-shadow:inset 0 0 0 1px rgba(14,159,110,.28) !important}
+
+/* --- aksen hijau agar tetap terbaca di latar putih --- */
+[data-theme="light"] .tile .ti,
+[data-theme="light"] .menu-item .mi,
+[data-theme="light"] .obsnum{background:rgba(14,159,110,.12) !important;color:#0B8A63 !important}
+[data-theme="light"] .sechead{color:#0B8A63 !important;border-bottom-color:rgba(14,159,110,.22) !important}
+[data-theme="light"] .offline-banner small{color:#0B8A63 !important}
+[data-theme="light"] .offline-banner b{color:#0A1C16 !important}
+[data-theme="light"] .bubble.k b{color:#0B8A63 !important}
+[data-theme="light"] .chat-input button.rec{background:rgba(14,159,110,.12) !important;color:#0B8A63 !important}
+
+/* --- kartu & elemen --- */
+[data-theme="light"] .tile:not(.primary){
+  background:#FFFFFF !important;
+  box-shadow:0 0 0 1px rgba(14,159,110,.10),0 8px 20px rgba(12,60,45,.07) !important}
+[data-theme="light"] .card,
+[data-theme="light"] .menu-list,
+[data-theme="light"] .search,
+[data-theme="light"] .draft-row,
+[data-theme="light"] .chat-input{border-color:var(--line) !important}
+[data-theme="light"] .iconbtn{background:#FFFFFF !important;border-color:var(--line) !important;color:var(--ink) !important}
+[data-theme="light"] .avatar{background:rgba(14,159,110,.12) !important;color:#0B8A63 !important}
+[data-theme="light"] .chev{color:#9BAFA9 !important}
+
+/* --- tombol --- */
+[data-theme="light"] .btn{background:#FFFFFF !important;color:var(--ink) !important;border-color:var(--line) !important}
+[data-theme="light"] .btn.ghost{background:transparent !important;color:var(--muted) !important}
+[data-theme="light"] .btn.primary{background:#10B981 !important;border-color:#10B981 !important}
+[data-theme="light"] .btn.primary,
+[data-theme="light"] .btn.primary *{color:#04231A !important}
+[data-theme="light"] .btn.danger{background:#FFF6F6 !important;color:#D93036 !important;border-color:#F3C6C8 !important}
+
+/* --- isian & chip --- */
+[data-theme="light"] .input,
+[data-theme="light"] .chip{background:#FFFFFF !important;color:var(--ink) !important;border-color:var(--line) !important}
+[data-theme="light"] .input::placeholder{color:#9BAFA9}
+[data-theme="light"] .chip{color:var(--muted) !important}
+[data-theme="light"] .chip.active{background:#10B981 !important;border-color:#10B981 !important}
+[data-theme="light"] .chip.active,
+[data-theme="light"] .chip.active *{color:#04231A !important}
+[data-theme="light"] .toggle{background:#E4EBE8 !important}
+
+/* --- modal, gelembung chat --- */
+[data-theme="light"] .modal-card{background:#FFFFFF !important;border:1px solid var(--line) !important;color:var(--ink) !important}
+[data-theme="light"] .bubble.k{background:#FFFFFF !important;border-color:var(--line) !important}
+[data-theme="light"] .draft-badge.out{background:rgba(217,48,54,.10) !important}
+
+/* --- splash terang --- */
+[data-theme="light"] #splash,
+[data-theme="light"] .splash{
+  background:linear-gradient(165deg,#E8F5F0 0%,#F3F9F7 55%,#FFFFFF 100%) !important;color:#0A1C16 !important}
+[data-theme="light"] .splash-logo{background:rgba(14,159,110,.14) !important;color:#0B8A63 !important;box-shadow:0 14px 34px rgba(12,60,45,.12) !important}
+[data-theme="light"] .splash-name i{color:#0B8A63}
+[data-theme="light"] .splash-sub,[data-theme="light"] .splash-tag,[data-theme="light"] .splash-login{color:#5E736C !important;opacity:1 !important}
+[data-theme="light"] .splash-login b{color:#0B8A63}
+
+/* --- layar Mendengarkan terang --- */
+[data-theme="light"] #listenOverlay{
+  background:linear-gradient(170deg,#EAF7F2,#D9EFE8 60%,#C9EBDF) !important;color:#0A1C16 !important}
+[data-theme="light"] #listenOverlay h2{color:#0A1C16 !important}
+[data-theme="light"] #listenOverlay .ovsub{color:#4E655E !important;opacity:1 !important}
+[data-theme="light"] #listenOverlay .ovtop button{background:rgba(11,138,99,.12) !important;color:#0B8A63 !important}
+[data-theme="light"] .wave i{background:rgba(11,138,99,.45) !important}
+[data-theme="light"] #listenOverlay .examples{background:rgba(255,255,255,.78) !important}
+[data-theme="light"] #listenOverlay .examples b{color:#0B8A63 !important;opacity:1 !important}
+[data-theme="light"] #listenOverlay .examples p{color:#33504A !important;opacity:1 !important}
+[data-theme="light"] #listenOverlay .transcript{background:rgba(255,255,255,.86) !important;color:#0A1C16 !important}
+[data-theme="light"] .perm{background:rgba(255,255,255,.82) !important;color:#33504A !important}
+[data-theme="light"] .perm button{background:rgba(11,138,99,.14) !important;color:#0B8A63 !important}
+[data-theme="light"] .perm-dot.ok{background:#0B8A63 !important}
+[data-theme="light"] #openManual{background:rgba(11,138,99,.12) !important;color:#0B8A63 !important;border-color:rgba(11,138,99,.28) !important}
+[data-theme="light"] #stopBtn2{background:rgba(255,255,255,.85) !important;color:#0A1C16 !important;border-color:rgba(11,138,99,.28) !important}
+[data-theme="light"] .listen-stat{color:#4E655E !important;opacity:1 !important}
+
+/* --- pemilih mode di Pengaturan --- */
+#themeSeg button[aria-pressed="true"]{
+  background:#10B981 !important;color:#04231A !important;
+  box-shadow:0 4px 12px rgba(16,185,129,.30) !important}
+
+/* --- cetak tetap hemat tinta --- */
+@media print{
+  html[data-theme="light"] body,
+  html[data-theme="light"] .app{background:#fff !important}
+  html[data-theme="light"] .card,
+  html[data-theme="light"] .tile,
+  html[data-theme="light"] .draft-row{box-shadow:none !important;border-color:#ddd !important}
+}
+
 </style>
 </head>
 <body>
@@ -770,6 +886,15 @@ details[open] summary::after{content:"▴"}
   <section class="subscreen" id="screen-atur">
     <div class="sub-head"><button data-back>‹</button><h2>Pengaturan</h2></div>
     <div class="card">
+      <h2><span>Tampilan</span></h2>
+      <p class="note" style="margin:0 0 10px">Pilih mode warna aplikasi. Pilihanmu tersimpan di perangkat ini.</p>
+      <div class="toggle" id="themeSeg" role="group" aria-label="Mode tampilan">
+        <button type="button" data-theme-opt="light">☀️ Terang</button>
+        <button type="button" data-theme-opt="dark">🌙 Gelap</button>
+      </div>
+    </div>
+
+    <div class="card">
       <h2><span>Toko &amp; saldo awal</span></h2>
       <div class="field"><label>Nama toko / usaha</label>
         <input class="input" id="cfgToko" placeholder="mis. Warung Sederhana" maxlength="40"></div>
@@ -911,8 +1036,14 @@ details[open] summary::after{content:"▴"}
 /* =========================================================
    0. VERSI & CHANGELOG
    ========================================================= */
-const APP_VERSION = '4.0.6';
+const APP_VERSION = '4.0.7';
 const CHANGELOG = [
+  { v:'4.0.7', d:'4 Okt 2026', items:[
+    'Pengaturan baru: pilih mode Tampilan — Terang atau Gelap.',
+    'Mode terang memakai latar putih bersih dengan aksen hijau emerald; seluruh layar, kartu, tombol, dan grafik ikut menyesuaikan.',
+    'Pilihan mode disimpan di perangkat, jadi tetap terpakai saat aplikasi dibuka lagi.',
+    'Saat dicetak/diekspor ke PDF, laporan tetap putih agar hemat tinta.'
+  ]},
   { v:'4.0.6', d:'4 Okt 2026', items:[
     'Perbaikan notifikasi (toast): dulu putih dengan tulisan putih sehingga tampak kotak kosong. Kini hijau emerald dengan tulisan hitam.',
     'Kolom ketik manual dipindah ke Beranda supaya langsung terlihat: ketik jual/beli + harga, lalu tekan Catat.',
@@ -3245,6 +3376,44 @@ document.getElementById('hpList').addEventListener('click', e => {
     var inp = document.getElementById('manual');
     if(inp){ try{ inp.focus(); inp.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} }
   });
+})();
+
+/* ---- v4.0.7: mode Terang / Gelap ---- */
+(function(){
+  var KEY='kasia.theme';
+  function cur(){ return document.documentElement.getAttribute('data-theme')||'dark'; }
+  function msg(t){
+    var b=document.getElementById('banner'); if(!b) return;
+    b.textContent=t; b.classList.add('show');
+    clearTimeout(msg._t); msg._t=setTimeout(function(){ b.classList.remove('show'); },1800);
+  }
+  function sync(){
+    var seg=document.getElementById('themeSeg'); if(!seg) return;
+    var bs=seg.querySelectorAll('button[data-theme-opt]'), t=cur();
+    for(var i=0;i<bs.length;i++){
+      bs[i].setAttribute('aria-pressed', bs[i].getAttribute('data-theme-opt')===t ? 'true' : 'false');
+    }
+  }
+  function apply(t){
+    document.documentElement.setAttribute('data-theme',t);
+    try{ localStorage.setItem(KEY,t); }catch(e){}
+    var m=document.querySelector('meta[name="theme-color"]');
+    if(m) m.setAttribute('content', t==='light' ? '#EFF4F2' : '#000000');
+    sync();
+  }
+  function init(){
+    var seg=document.getElementById('themeSeg'); if(!seg) return;
+    seg.addEventListener('click', function(e){
+      var b=e.target.closest ? e.target.closest('button[data-theme-opt]') : null;
+      if(!b) return;
+      var t=b.getAttribute('data-theme-opt');
+      apply(t);
+      msg(t==='light' ? '☀️ Mode terang aktif' : '🌙 Mode gelap aktif');
+    });
+    sync();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 })();
 
 /* =========================================================
